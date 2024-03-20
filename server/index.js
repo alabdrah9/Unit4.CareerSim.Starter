@@ -1,19 +1,26 @@
 
-const {
+const  {
   client,
   createTables,
   createUser,
+  createCart,
   createProduct,
-  createFavorite,
+  createOrder,
+  readUser,
+  readProduct,
+  readCartedProduct,
+  updateUser,
+  updateCartedProduct,
+  updateProduct,
   fetchUsers,
+  fetchUsersInfo,
   fetchProducts,
-  fetchFavorites,
-  deleteProducts,//Admins only
-  addCart,//Admins only
-  removeCrat,//Admins only
+  deleteUser,
+  deleteProduct,
+  deleteCartedProduct,
   authenticate,
   findUserWithToken
-} = require('./db');
+}; = require('./db');
 const express = require('express');
 const app = express();
 app.use(express.json());
@@ -62,7 +69,7 @@ app.get('/api/auth/me', isLoggedIn, async(req, res, next)=> {
 
 app.get('/api/users', async(req, res, next)=> {
   try {
-    res.send(await fetchUsers());
+    res.send(await fetchUsersInfo());
   }
   catch(ex){
     next(ex);

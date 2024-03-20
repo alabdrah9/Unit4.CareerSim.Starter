@@ -7,25 +7,38 @@ const JWT = process.env.JWT || 'shhh';
 
 const createTables = async()=> {
   const SQL = `
-    DROP TABLE IF EXISTS favorites;
+    DROP TABLE IF EXISTS cart_products;
+    DROP TABLE IF EXISTS cart;
     DROP TABLE IF EXISTS users;
     DROP TABLE IF EXISTS products;
     CREATE TABLE users(
       id UUID DEFAULT gen_random_uuid(),
       username VARCHAR(20) UNIQUE NOT NULL,
       password VARCHAR(255) NOT NULL,
+      payment_info VARCHAR(16),
+      is_admin BOOLEAN,
       PRIMARY KEY (id)
+    );
+    CREATE TABLE carts(
+      id UUID  PRIMARY KEY 
+      user_id UUID REFERENCES,
     );
     CREATE TABLE products(
       id UUID DEFAULT gen_random_uuid(),
-      name VARCHAR(20),
+      name VARCHAR(20) UNIQUE NOT NULL,
+      inventory NUMERIC
+      price NUMERIC(7,5)
+      currency TEXT,
       PRIMARY KEY (id)
     );
-    CREATE TABLE favorites(
+    CREATE TABLE carted_products(
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      product_id UUID REFERENCES product(id) NOT NULL,
       user_id UUID REFERENCES users(id) NOT NULL,
-      product_id UUID REFERENCES products(id) NOT NULL,
-      CONSTRAINT unique_user_id_and_product_id UNIQUE (user_id, product_id)
+      amount NUMERIC DEFAULT,
+      CONSTRAINT unique_user_id_and_product_id UNIQUE (product_id,user_id),
+      CONSTRAINT amount_less_than_inventory CHECK (amount <=products(inventory)),
+      PRIMARY KEY (id)
     );
   `;
   await client.query(SQL);
@@ -39,25 +52,90 @@ const createUser = async({ username, password})=> {
   return response.rows[0];
 };
 
-const createProduct = async({ name })=> {
+const createCart = async({ name })=> {
   const SQL = `
-    INSERT INTO products(id, name) VALUES($1, $2) RETURNING *
+    INSERT INTO carts(id, name) VALUES($1, $2) RETURNING *
   `;
   const response = await client.query(SQL, [uuid.v4(), name]);
   return response.rows[0];
 };
 
-const createFavorite = async({ user_id, product_id })=> {
+const createProduct = async({  product_id, })=> {
   const SQL = `
-    INSERT INTO favorites(id, user_id, product_id) VALUES($1, $2, $3) RETURNING *
+    INSERT INTO products(id,) VALUES($1, $2, $3) RETURNING *
   `;
-  const response = await client.query(SQL, [uuid.v4(), user_id, product_id]);
+  const response = await client.query(SQL, [uuid.v4(), product_id,]);
+  return response.rows[0];
+};
+const createOrder = async({  order_id, })=> {
+  const SQL = `
+    INSERT INTO orders(order_id, username,) VALUES($1, $2, $3) RETURNING *
+  `;
+  const response = await client.query(SQL, [uuid.v4(), order_id,]);
+  return response.rows[0];
+};
+const readUser = async({  user_id, })=> {
+  const SQL = `
+    INSERT INTO users(user_id, username,) VALUES($1, $2, $3) RETURNING *
+  `;
+  const response = await client.query(SQL, [uuid.v4(), users_id,]);
+  return response.rows[0];
+};
+const readProduct = async({  product_id, })=> {
+  const SQL = `
+    INSERT INTO products(product_id, cart_id,) VALUES($1, $2, $3) RETURNING *
+  `;
+  const response = await client.query(SQL, [uuid.v4(), users_id,]);
+  return response.rows[0];
+};
+const readCartedProduct = async({ cart_id, product_id, })=> {
+  const SQL = `
+    INSERT INTO carted(carted_id, product_id, ) VALUES($1, $2, $3) RETURNING *
+  `;
+  const response = await client.query(SQL, [uuid.v4(), cart_id, product_id,]);
+  return response.rows[0];
+};
+const updateCartedProduct = async({ cart_id, product_id, })=> {
+  const SQL = `
+    INSERT INTO carted(carted_id, product_id, ) VALUES($1, $2, $3) RETURNING *
+  `;
+  const response = await client.query(SQL, [uuid.v4(), cart_id, product_id,]);
+  return response.rows[0];
+};
+const updateUser = async({ user_id, username, })=> {
+  const SQL = `
+    INSERT INTO users(user_id, username, ) VALUES($1, $2, $3) RETURNING *
+  `;
+  const response = await client.query(SQL, [uuid.v4(), user_id, username,]);
+  return response.rows[0];
+};
+const updateProduct = async({ product_id, })=> {
+  const SQL = `
+    INSERT INTO product(product_id, ) VALUES($1, $2, $3) RETURNING *
+  `;
+  const response = await client.query(SQL, [uuid.v4(), product_id,]);
   return response.rows[0];
 };
 
-const destroyFavorite = async({ user_id, id })=> {
+
+const deleteUser = async({ user_id, id })=> {
   const SQL = `
-    DELETE FROM favorites WHERE user_id=$1 AND id=$2
+    DELETE FROM users WHERE user_id=$1 AND id=$2
+  `;
+  await client.query(SQL, [user_id, id]);
+};
+
+const deleteProduct = async({ product_id, id })=> {
+  const SQL = `
+    DELETE FROM products WHERE product_id=$1 AND id=$2
+  `;
+  await client.query(SQL, [user_id, id]);
+};
+
+const deleteCartedProduct = async({ user_id, id })=> {
+  const SQL = `
+    DELETE FROM carts WHERE cart_id=$1 AND id=$2
+    DELETE FROM products WHERE product_id=$1 AND id=$2
   `;
   await client.query(SQL, [user_id, id]);
 };
@@ -119,11 +197,11 @@ const fetchProducts = async()=> {
   return response.rows;
 };
 
-const fetchFavorites = async(user_id)=> {
+const fetchOrder = async(user_id)=> {
   const SQL = `
-    SELECT * FROM favorites where user_id = $1
+    SELECT * FROM orders where order_id = $1
   `;
-  const response = await client.query(SQL, [user_id]);
+  const response = await client.query(SQL, [order_id]);
   return response.rows;
 };
 
@@ -131,14 +209,21 @@ module.exports = {
   client,
   createTables,
   createUser,
-  createCartProduct,
+  createCart,
   createProduct,
   createOrder,
+  readUser,
+  readProduct,
+  readCartedProduct,
+  updateUser,
+  updateCartedProduct,
+  updateProduct,
+  fetchUsers,
   fetchUsers,
   fetchProducts,
-  fetchFavorites,
-  createFavorite,
-  destroyFavorite,
+  deleteUser,
+  deleteProduct,
+  deleteCartedProduct,
   authenticate,
   findUserWithToken
 };
