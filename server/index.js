@@ -2,25 +2,20 @@
 const  {
   client,
   createTables,
-  createUser,
-  createCart,
-  createProduct,
-  createOrder,
-  readUser,
-  readProduct,
-  readCartedProduct,
-  updateUser,
-  updateCartedProduct,
-  updateProduct,
-  fetchUsers,
-  fetchUsersInfo,
-  fetchProducts,
-  deleteUser,
-  deleteProduct,
-  deleteCartedProduct,
+  fetchUserInfo,
+  singUp,
+  login,
+  logout,
+  createProduct, //admin only
+  updateProduct, // admin only
+  deleteProduct, // admin only
+  addCart,
+  removeCart,
+  checkout,
   authenticate,
-  findUserWithToken
-}; = require('./db');
+  findUserWithToken,
+  createUser
+} = require('./db');
 const express = require('express');
 const app = express();
 app.use(express.json());
@@ -51,7 +46,7 @@ app.post('/api/auth/login', async(req, res, next)=> {
 
 app.post('/api/auth/register', async(req, res, next)=> {
   try {
-    res.send(await createUser(req.body));
+    res.send(await createProduct(req.body));
   }
   catch(ex){
     next(ex);
@@ -67,9 +62,9 @@ app.get('/api/auth/me', isLoggedIn, async(req, res, next)=> {
   }
 });
 
-app.get('/api/users', async(req, res, next)=> {
+app.get('/api/user', async(req, res, next)=> {
   try {
-    res.send(await fetchUsersInfo());
+    res.send(await fetchUsers());
   }
   catch(ex){
     next(ex);
@@ -126,23 +121,26 @@ const init = async()=> {
   await createTables();
   console.log('tables created');
 
-  const [moe, lucy, ethyl, curly, foo, bar, bazz, quq, fip] = await Promise.all([
-    createUser({ username: 'moe', password: 'm_pw'}),
-    createUser({ username: 'lucy', password: 'l_pw'}),
-    createUser({ username: 'ethyl', password: 'e_pw'}),
-    createUser({ username: 'curly', password: 'c_pw'}),
-    createProduct({ name: 'foo' }),
-    createProduct({ name: 'bar' }),
-    createProduct({ name: 'bazz' }),
-    createProduct({ name: 'quq' }),
-    createProduct({ name: 'fip' })
+
+
+
+  const user = await Promise.all([
+    createUser({
+      username: 'moe', password: 'm_pw', payment_info: "1233887661212121",
+    }),
   ]);
 
-  console.log(await fetchUsers());
-  console.log(await fetchProducts());
+  const products = await Promise.all([
+    createProduct({
+      name: 'laptop', inventory: 100, price: 1000.00, currency: "$",
+    }),
+  ]);
 
-  console.log(await fetchFavorites(moe.id));
-  const favorite = await createFavorite({ user_id: moe.id, product_id: foo.id });
+  console.log( user);
+  console.log( products);
+
+  // console.log(await fetchFavorites(moe.id));
+  // const favorite = await createFavorite({ user_id: moe.id, product_id: foo.id });
   app.listen(port, ()=> console.log(`listening on port ${port}`));
 };
 

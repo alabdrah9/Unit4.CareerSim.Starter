@@ -7,38 +7,31 @@ const JWT = process.env.JWT || 'shhh';
 
 const createTables = async()=> {
   const SQL = `
-    DROP TABLE IF EXISTS cart_products;
-    DROP TABLE IF EXISTS cart;
-    DROP TABLE IF EXISTS users;
-    DROP TABLE IF EXISTS products;
+    DROP TABLE IF EXISTS cart_products CASCADE;
+    DROP TABLE IF EXISTS products CASCADE;
+    DROP TABLE IF EXISTS users CASCADE;
+
     CREATE TABLE users(
-      id UUID DEFAULT gen_random_uuid(),
+      id UUID PRIMARY KEY,
       username VARCHAR(20) UNIQUE NOT NULL,
       password VARCHAR(255) NOT NULL,
-      payment_info VARCHAR(16),
-      is_admin BOOLEAN,
-      PRIMARY KEY (id)
+      payment_info VARCHAR(16)
     );
-    CREATE TABLE carts(
-      id UUID  PRIMARY KEY 
-      user_id UUID REFERENCES,
-    );
+
     CREATE TABLE products(
-      id UUID DEFAULT gen_random_uuid(),
+      id UUID PRIMARY KEY,
       name VARCHAR(20) UNIQUE NOT NULL,
-      inventory NUMERIC
-      price NUMERIC(7,5)
-      currency TEXT,
-      PRIMARY KEY (id)
+      inventory NUMERIC,
+      price NUMERIC(9,2),
+      currency TEXT
     );
-    CREATE TABLE carted_products(
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      product_id UUID REFERENCES product(id) NOT NULL,
+
+    CREATE TABLE cart_products(
+      id UUID PRIMARY KEY,
+      product_id UUID REFERENCES products(id) NOT NULL,
       user_id UUID REFERENCES users(id) NOT NULL,
-      amount NUMERIC DEFAULT,
-      CONSTRAINT unique_user_id_and_product_id UNIQUE (product_id,user_id),
-      CONSTRAINT amount_less_than_inventory CHECK (amount <=products(inventory)),
-      PRIMARY KEY (id)
+      amount NUMERIC DEFAULT 0,
+      CONSTRAINT unique_user_id_product_id UNIQUE (product_id,user_id)
     );
   `;
   await client.query(SQL);
@@ -60,18 +53,18 @@ const createCart = async({ name })=> {
   return response.rows[0];
 };
 
-const createProduct = async({  product_id, })=> {
+const createProduct = async({ name, inventory, price, currency })=> {
   const SQL = `
-    INSERT INTO products(id,) VALUES($1, $2, $3) RETURNING *
+    INSERT INTO products(id, name, inventory, price, currency) VALUES($1, $2, $3, $4, $5) RETURNING *
   `;
-  const response = await client.query(SQL, [uuid.v4(), product_id,]);
+  const response = await client.query(SQL, [uuid.v4(), name, inventory, price, currency]);
   return response.rows[0];
 };
-const createOrder = async({  order_id, })=> {
+const selectOrder = async({  order_id, })=> {
   const SQL = `
-    INSERT INTO orders(order_id, username,) VALUES($1, $2, $3) RETURNING *
+    INSERT INTO select_orders(select_order_id, username,) VALUES($1, $2, $3) RETURNING *
   `;
-  const response = await client.query(SQL, [uuid.v4(), order_id,]);
+  const response = await client.query(SQL, [uuid.v4(), select_order_id,]);
   return response.rows[0];
 };
 const readUser = async({  user_id, })=> {
@@ -88,9 +81,10 @@ const readProduct = async({  product_id, })=> {
   const response = await client.query(SQL, [uuid.v4(), users_id,]);
   return response.rows[0];
 };
-const readCartedProduct = async({ cart_id, product_id, })=> {
+//readCartedProduct
+const selectProduct  = async({ cart_id, product_id, })=> {
   const SQL = `
-    INSERT INTO carted(carted_id, product_id, ) VALUES($1, $2, $3) RETURNING *
+    INSERT INTO product(carted_id, product_id, ) VALUES($1, $2, $3) RETURNING *
   `;
   const response = await client.query(SQL, [uuid.v4(), cart_id, product_id,]);
   return response.rows[0];
@@ -183,7 +177,7 @@ const findUserWithToken = async(token)=> {
 
 const fetchUsers = async()=> {
   const SQL = `
-    SELECT id, username FROM users;
+    SELECT * FROM users;
   `;
   const response = await client.query(SQL);
   return response.rows;
@@ -211,14 +205,13 @@ module.exports = {
   createUser,
   createCart,
   createProduct,
-  createOrder,
+  selectOrder,
   readUser,
   readProduct,
-  readCartedProduct,
+  selectProduct,
   updateUser,
   updateCartedProduct,
   updateProduct,
-  fetchUsers,
   fetchUsers,
   fetchProducts,
   deleteUser,
