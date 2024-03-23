@@ -62,9 +62,9 @@ const createProduct = async({ name, inventory, price, currency })=> {
 };
 const selectOrder = async({  order_id, })=> {
   const SQL = `
-    INSERT INTO select_orders(select_order_id, username,) VALUES($1, $2, $3) RETURNING *
+    INSERT INTO select_orders(id, select_order username,) VALUES($1, $2, $3) RETURNING *
   `;
-  const response = await client.query(SQL, [uuid.v4(), select_order_id,]);
+  const response = await client.query(SQL, [uuid.v4(), selectOrder]);
   return response.rows[0];
 };
 const readUser = async({  user_id, })=> {

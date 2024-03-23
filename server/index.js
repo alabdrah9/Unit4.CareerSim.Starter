@@ -126,13 +126,31 @@ const init = async()=> {
 
   const user = await Promise.all([
     createUser({
-      username: 'moe', password: 'm_pw', payment_info: "1233887661212121",
+      username: 'Moe', password: 'm_pw', payment_info: "1233887661212121",
+    }),
+    createUser({
+      username: 'Adam', password: 'm_ab', payment_info: "1233887661212122",
+    }),
+    createUser({
+      username: 'Ryan', password: 'm_cd', payment_info: "1233887661212123",
+    }),
+    createUser({
+      username: 'Ahmed', password: 'm_ef', payment_info: "1233887661212124",
     }),
   ]);
 
   const products = await Promise.all([
     createProduct({
-      name: 'laptop', inventory: 100, price: 1000.00, currency: "$",
+      name: 'sauvage', inventory: 83, price: 135.00, currency: "$",
+    }),
+    createProduct({
+      name: ' Home Intense', inventory: 54, price: 120.00, currency: "$",
+    }),
+    createProduct({
+      name: 'No:5', inventory: 19, price: 103.00, currency: "$",
+    }),
+    createProduct({
+      name: 'chance', inventory: 30, price: 172.00, currency: "$",
     }),
   ]);
 
