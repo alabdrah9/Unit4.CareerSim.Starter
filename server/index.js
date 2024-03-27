@@ -6,10 +6,12 @@ const  {
   singUp,
   login,
   logout,
+  cart_products,
   createProduct, //admin only
   updateProduct, // admin only
-  deleteProduct, // admin only
+  deleteProducts, // admin only
   addCart,
+
   removeCart,
   checkout,
   authenticate,
@@ -24,6 +26,19 @@ app.use(express.json());
 const path = require('path');
 app.get('/', (req, res)=> res.sendFile(path.join(__dirname, '../client/dist/index.html')));
 app.use('/assets', express.static(path.join(__dirname, '../client/dist/assets'))); 
+
+const isAdmin = async(req,res,next) =>{
+  try{
+    if(req.user.isAdmin){
+      next()
+    }else{
+      next(new Error("user in not admin"))
+    }
+
+  }catch (ex){
+
+  }
+}
 
 const isLoggedIn = async(req, res, next)=> {
   try {
@@ -53,7 +68,7 @@ app.post('/api/auth/register', async(req, res, next)=> {
   }
 });
 
-app.get('/api/auth/me', isLoggedIn, async(req, res, next)=> {
+app.get('/api/auth/me', isLoggedIn,isAdmin, async(req, res, next)=> {
   try {
     res.send(await findUserWithToken(req.headers.authorization));
   }
@@ -71,7 +86,7 @@ app.get('/api/user', async(req, res, next)=> {
   }
 });
 
-app.get('/api/users/:id/favorites', async(req, res, next)=> {
+app.get('/api/users/:id/favorites',isLoggedIn,isAdmin, async(req, res, next)=> {
   try {
     res.send(await fetchFavorites(req.params.id));
   }
@@ -80,7 +95,7 @@ app.get('/api/users/:id/favorites', async(req, res, next)=> {
   }
 });
 
-app.post('/api/users/:id/favorites', isLoggedIn, async(req, res, next)=> {
+app.post('/api/users/:id/favorites', isLoggedIn,isAdmin, async(req, res, next)=> {
   try {
     res.status(201).send(await createFavorite({ user_id: req.params.id, product_id: req.body.product_id}));
   }
@@ -89,7 +104,7 @@ app.post('/api/users/:id/favorites', isLoggedIn, async(req, res, next)=> {
   }
 });
 
-app.delete('/api/users/:user_id/favorites/:id', isLoggedIn, async(req, res, next)=> {
+app.delete('/api/users/:user_id/favorites/:id', isLoggedIn,isAdmin, async(req, res, next)=> {
   try {
     await deleteProducts({user_id: req.params.user_id, id: req.params.id });
     res.sendStatus(204);
@@ -108,6 +123,28 @@ app.get('/api/products', async(req, res, next)=> {
   }
 });
 
+app.get('/api/products/:id', async(req, res, next)=> {
+  const { id } = req.params;
+  const product = product.find(p => p.id=== id);
+  if (product){
+    res.json(product);
+  }else{
+    res.status(404).json({ message: 'product not found'});
+  }
+  
+});
+
+
+app.put('/api/products', async(req, res, next)=> {
+  try {
+    res.send(await fetchProducts());
+  }
+  catch(ex){
+    next(ex);
+  }
+});
+
+
 app.use((err, req, res, next)=> {
   console.log(err);
   res.status(err.status || 500).send({ error: err.message ? err.message : err });
@@ -122,35 +159,47 @@ const init = async()=> {
   console.log('tables created');
 
 
-
-
   const user = await Promise.all([
     createUser({
-      username: 'Moe', password: 'm_pw', payment_info: "1233887661212121",
+      username: 'Moe', password: 'm_pw', payment_info: "1233887661212121",admin: true,
     }),
     createUser({
-      username: 'Adam', password: 'm_ab', payment_info: "1233887661212122",
+      username: 'Adam', password: 'm_ab', payment_info: "1233887661212122",admin: true,
     }),
     createUser({
-      username: 'Ryan', password: 'm_cd', payment_info: "1233887661212123",
+      username: 'Ryan', password: 'm_cd', payment_info: "1233887661212123", admin: true,
     }),
     createUser({
-      username: 'Ahmed', password: 'm_ef', payment_info: "1233887661212124",
+      username: 'Ahmed', password: 'm_ef', payment_info: "1233887661212124", admin: false,
     }),
   ]);
 
   const products = await Promise.all([
     createProduct({
-      name: 'sauvage', inventory: 83, price: 135.00, currency: "$",
+      name: 'sauvage', inventory: 83, price: 135.00, currency: "$", admin: true,
     }),
     createProduct({
-      name: ' Home Intense', inventory: 54, price: 120.00, currency: "$",
+      name: ' Home Intense', inventory: 54, price: 120.00, currency: "$", admin: true,
     }),
     createProduct({
-      name: 'No:5', inventory: 19, price: 103.00, currency: "$",
+      name: 'No:5', inventory: 19, price: 103.00, currency: "$", admin: true,
     }),
     createProduct({
-      name: 'chance', inventory: 30, price: 172.00, currency: "$",
+      name: 'chance', inventory: 30, price: 172.00, currency: "$", admin: false,
+    }),
+  ]);
+  const cart_products = await Promise.all([
+    createProduct({
+      name: 'Moe', inventory: 83, price: 135.00, currency: "$",
+    }),
+    createProduct({
+      name: ' Adam ', inventory: 54, price: 120.00, currency: "$",
+    }),
+    createProduct({
+      name: 'Ryan', inventory: 19, price: 103.00, currency: "$",
+    }),
+    createProduct({
+      name: 'Ahmed', inventory: 30, price: 172.00, currency: "$",
     }),
   ]);
 
@@ -158,7 +207,7 @@ const init = async()=> {
   console.log( products);
 
   // console.log(await fetchFavorites(moe.id));
-  // const favorite = await createFavorite({ user_id: moe.id, product_id: foo.id });
+  // const favorite = await createFavorite({ user_id: moe.id, product_id: });
   app.listen(port, ()=> console.log(`listening on port ${port}`));
 };
 

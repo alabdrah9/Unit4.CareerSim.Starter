@@ -15,7 +15,8 @@ const createTables = async()=> {
       id UUID PRIMARY KEY,
       username VARCHAR(20) UNIQUE NOT NULL,
       password VARCHAR(255) NOT NULL,
-      payment_info VARCHAR(16)
+      payment_info VARCHAR(16),
+      is_admin BOOLEAN DEFAULT FALSE
     );
 
     CREATE TABLE products(
@@ -39,7 +40,7 @@ const createTables = async()=> {
 
 const createUser = async({ username, password})=> {
   const SQL = `
-    INSERT INTO users(id, username, password) VALUES($1, $2, $3) RETURNING *
+    INSERT INTO users(id, username, password ) VALUES($1, $2, $3 ) RETURNING *
   `;
   const response = await client.query(SQL, [uuid.v4(), username, await bcrypt.hash(password, 5)]);
   return response.rows[0];
