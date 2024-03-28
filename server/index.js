@@ -2,6 +2,20 @@
 const  {
   client,
   createTables,
+  createUser,
+  createCart,
+  selectOrder,
+  readUser,
+  readProduct,
+  selectProduct,
+  updateUser,
+  updateCartedProduct,
+  fetchUsers,
+  fetchProducts,
+  fetchOrder,
+  deleteUser,
+  deleteProduct,
+  deleteCartedProduct,
   fetchUserInfo,
   singUp,
   login,
@@ -11,12 +25,10 @@ const  {
   updateProduct, // admin only
   deleteProducts, // admin only
   addCart,
-
   removeCart,
   checkout,
   authenticate,
-  findUserWithToken,
-  createUser
+  findUserWithToken
 } = require('./db');
 const express = require('express');
 const app = express();
@@ -86,25 +98,25 @@ app.get('/api/user', async(req, res, next)=> {
   }
 });
 
-app.get('/api/users/:id/favorites',isLoggedIn,isAdmin, async(req, res, next)=> {
+app.get('/api/users/:id/cart',isLoggedIn,isAdmin, async(req, res, next)=> {
   try {
-    res.send(await fetchFavorites(req.params.id));
+    res.send(await fetchCart(req.params.id));
   }
   catch(ex){
     next(ex);
   }
 });
 
-app.post('/api/users/:id/favorites', isLoggedIn,isAdmin, async(req, res, next)=> {
+app.post('/api/users/:id/cart', isLoggedIn,isAdmin, async(req, res, next)=> {
   try {
-    res.status(201).send(await createFavorite({ user_id: req.params.id, product_id: req.body.product_id}));
+    res.status(201).send(await createCart({ user_id: req.params.id, product_id: req.body.product_id}));
   }
   catch(ex){
     next(ex);
   }
 });
 
-app.delete('/api/users/:user_id/favorites/:id', isLoggedIn,isAdmin, async(req, res, next)=> {
+app.delete('/api/users/:user_id/product/:id', isLoggedIn,isAdmin, async(req, res, next)=> {
   try {
     await deleteProducts({user_id: req.params.user_id, id: req.params.id });
     res.sendStatus(204);
@@ -176,16 +188,16 @@ const init = async()=> {
 
   const products = await Promise.all([
     createProduct({
-      name: 'sauvage', inventory: 83, price: 135.00, currency: "$", admin: true,
+      name: 'sauvage', inventory: 83, price: 135.00, currency: "$", admin: true, image_url:'https://www.sephora.com/productimages/sku/s2267797-main-zoom.jpg?imwidth=1224://www.sephora.com/productimages/sku/s1739333-main-zoom.jpg?imwidth=315',
     }),
     createProduct({
-      name: ' Home Intense', inventory: 54, price: 120.00, currency: "$", admin: true,
+      name: ' Home Intense', inventory: 54, price: 120.00, currency: "$", admin: true, image_url: 'https://www.sephora.com/productimages/sku/s2310548-main-zoom.jpg?imwidth=1224',
     }),
     createProduct({
-      name: 'No:5', inventory: 19, price: 103.00, currency: "$", admin: true,
+      name: 'No:5', inventory: 19, price: 103.00, currency: "$", admin: true, image_url: 'https://www.sephora.com/productimages/sku/s719260-main-zoom.jpg?imwidth=1224',
     }),
     createProduct({
-      name: 'chance', inventory: 30, price: 172.00, currency: "$", admin: false,
+      name: 'chance', inventory: 30, price: 172.00, currency: "$", admin: false, image_url: 'https://www.sephora.com/productimages/sku/s2170686-main-zoom.jpg?imwidth=1224',
     }),
   ]);
   const cart_products = await Promise.all([

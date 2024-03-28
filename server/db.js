@@ -14,7 +14,7 @@ const createTables = async()=> {
     CREATE TABLE users(
       id UUID PRIMARY KEY,
       username VARCHAR(20) UNIQUE NOT NULL,
-      password VARCHAR(255) NOT NULL,
+      password VARCHAR(60) NOT NULL,
       payment_info VARCHAR(16),
       is_admin BOOLEAN DEFAULT FALSE
     );
@@ -23,6 +23,7 @@ const createTables = async()=> {
       id UUID PRIMARY KEY,
       name VARCHAR(20) UNIQUE NOT NULL,
       inventory NUMERIC,
+      image_url VARCHAR(255),
       price NUMERIC(9,2),
       currency TEXT
     );
@@ -38,11 +39,11 @@ const createTables = async()=> {
   await client.query(SQL);
 };
 
-const createUser = async({ username, password})=> {
+const createUser = async({ username, password, })=> {
   const SQL = `
-    INSERT INTO users(id, username, password ) VALUES($1, $2, $3 ) RETURNING *
+    INSERT INTO users(id, username, password  ) VALUES($1, $2, $3 ) RETURNING *
   `;
-  const response = await client.query(SQL, [uuid.v4(), username, await bcrypt.hash(password, 5)]);
+  const response = await client.query(SQL, [uuid.v4(), username,  await bcrypt.hash(password, 5)]);
   return response.rows[0];
 };
 
@@ -54,11 +55,11 @@ const createCart = async({ name })=> {
   return response.rows[0];
 };
 
-const createProduct = async({ name, inventory, price, currency })=> {
+const createProduct = async({ name, inventory, price, currency, image_url })=> {
   const SQL = `
-    INSERT INTO products(id, name, inventory, price, currency) VALUES($1, $2, $3, $4, $5) RETURNING *
+    INSERT INTO products(id, name, inventory, price, currency, image_url) VALUES($1, $2, $3, $4, $5, $6 ) RETURNING *
   `;
-  const response = await client.query(SQL, [uuid.v4(), name, inventory, price, currency]);
+  const response = await client.query(SQL, [uuid.v4(), name, inventory, price, currency, image_url]);
   return response.rows[0];
 };
 const selectOrder = async({  order_id, })=> {
@@ -215,6 +216,7 @@ module.exports = {
   updateProduct,
   fetchUsers,
   fetchProducts,
+  fetchOrder,
   deleteUser,
   deleteProduct,
   deleteCartedProduct,
