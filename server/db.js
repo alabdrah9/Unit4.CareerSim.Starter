@@ -201,6 +201,14 @@ const fetchOrder = async(user_id)=> {
   return response.rows;
 };
 
+const fetchProductById = async(id)=> {
+  const SQL = `
+    SELECT * FROM products where id = $1
+  `;
+  const response = await client.query(SQL, [id]);
+  return response.rows[0];
+};
+
 module.exports = {
   client,
   createTables,
@@ -217,6 +225,7 @@ module.exports = {
   fetchUsers,
   fetchProducts,
   fetchOrder,
+  fetchProductById,
   deleteUser,
   deleteProduct,
   deleteCartedProduct,

@@ -4,31 +4,32 @@ const  {
   createTables,
   createUser,
   createCart,
+  createProduct,
+  authenticate,
+  findUserWithToken,
+  fetchUsers,
+  fetchProducts,
+  deleteProduct,
+  fetchProductById,
   selectOrder,
   readUser,
   readProduct,
   selectProduct,
   updateUser,
   updateCartedProduct,
-  fetchUsers,
-  fetchProducts,
   fetchOrder,
   deleteUser,
-  deleteProduct,
   deleteCartedProduct,
   fetchUserInfo,
   singUp,
   login,
   logout,
   cart_products,
-  createProduct, //admin only
-  updateProduct, // admin only
-  deleteProducts, // admin only
+  updateProduct, 
   addCart,
   removeCart,
-  checkout,
-  authenticate,
-  findUserWithToken
+  checkout
+  
 } = require('./db');
 const express = require('express');
 const app = express();
@@ -118,7 +119,7 @@ app.post('/api/users/:id/cart', isLoggedIn,isAdmin, async(req, res, next)=> {
 
 app.delete('/api/users/:user_id/product/:id', isLoggedIn,isAdmin, async(req, res, next)=> {
   try {
-    await deleteProducts({user_id: req.params.user_id, id: req.params.id });
+    await deleteProduct({user_id: req.params.user_id, id: req.params.id });
     res.sendStatus(204);
   }
   catch(ex){
@@ -137,7 +138,7 @@ app.get('/api/products', async(req, res, next)=> {
 
 app.get('/api/products/:id', async(req, res, next)=> {
   const { id } = req.params;
-  const product = product.find(p => p.id=== id);
+  const product= await fetchProductById(id)
   if (product){
     res.json(product);
   }else{
@@ -149,7 +150,7 @@ app.get('/api/products/:id', async(req, res, next)=> {
 
 app.put('/api/products', async(req, res, next)=> {
   try {
-    res.send(await fetchProducts());
+    res.send(await Products());
   }
   catch(ex){
     next(ex);
