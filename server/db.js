@@ -14,6 +14,7 @@ const createTables = async()=> {
     CREATE TABLE users(
       id UUID PRIMARY KEY,
       username VARCHAR(20) UNIQUE NOT NULL,
+      email VARCHAR(50),
       password VARCHAR(60) NOT NULL,
       payment_info VARCHAR(16),
       is_admin BOOLEAN DEFAULT FALSE
@@ -39,12 +40,12 @@ const createTables = async()=> {
   await client.query(SQL);
 };
 
-const createUser = async({ username, password, })=> {
+const createUser = async({ username, email, password })=> {
   const SQL = `
-    INSERT INTO users(id, username, password  ) VALUES($1, $2, $3 ) RETURNING *
+    INSERT INTO users(id, username, email, password ) VALUES($1, $2, $3, $4) RETURNING *
   `;
-  const response = await client.query(SQL, [uuid.v4(), username,  await bcrypt.hash(password, 5)]);
-  return response.rows[0];
+  const response = await client.query(SQL, [uuid.v4(),username, email, await bcrypt.hash(password, 5)]);
+  return response.rows[0]
 };
 
 const createCart = async({ name })=> {

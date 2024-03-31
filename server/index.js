@@ -174,16 +174,16 @@ const init = async()=> {
 
   const user = await Promise.all([
     createUser({
-      username: 'Moe', password: 'm_pw', payment_info: "1233887661212121",admin: true,
+      email:'moe123@gmail.com', username: 'Moe', password: 'pass123456', payment_info: "1233887661212121",admin: true,
     }),
     createUser({
-      username: 'Adam', password: 'm_ab', payment_info: "1233887661212122",admin: true,
+      email:'Adam123@gmail.com',  username: 'Adam', password: 'pass1234567', payment_info: "1233887661212122",admin: true,
     }),
     createUser({
-      username: 'Ryan', password: 'm_cd', payment_info: "1233887661212123", admin: true,
+      email:'Ryan123@gmail.com', username: 'Ryan', password: 'pass12345678', payment_info: "1233887661212123", admin: true,
     }),
     createUser({
-      username: 'Ahmed', password: 'm_ef', payment_info: "1233887661212124", admin: false,
+      email:'Ahmed123@gmail.com', username: 'Ahmed', password: 'pass1234456789', payment_info: "1233887661212124", admin: false,
     }),
   ]);
 
