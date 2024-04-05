@@ -2,6 +2,7 @@ const pg = require('pg');
 const client = new pg.Client(process.env.DATABASE_URL || 'postgres://localhost/acme_auth_store_db');
 const uuid = require('uuid');
 const bcrypt = require('bcrypt');
+const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const JWT = process.env.JWT || 'shhh';
 
@@ -10,6 +11,8 @@ const createTables = async()=> {
     DROP TABLE IF EXISTS cart_products CASCADE;
     DROP TABLE IF EXISTS products CASCADE;
     DROP TABLE IF EXISTS users CASCADE;
+    DROP TABLE IF EXISTS orders CASCADE;
+    
 
     CREATE TABLE users(
       id UUID PRIMARY KEY,
@@ -28,12 +31,17 @@ const createTables = async()=> {
       price NUMERIC(9,2),
       currency TEXT
     );
+    CREATE TABLE orders(
+      id UUID PRIMARY KEY,
+      user_id UUID REFERENCES users(id) NOT NULL
+    );
 
     CREATE TABLE cart_products(
       id UUID PRIMARY KEY,
       product_id UUID REFERENCES products(id) NOT NULL,
       user_id UUID REFERENCES users(id) NOT NULL,
       amount NUMERIC DEFAULT 0,
+      qty INTEGER DEFAULT 1,
       CONSTRAINT unique_user_id_product_id UNIQUE (product_id,user_id)
     );
   `;
@@ -56,6 +64,22 @@ const createCart = async({ name })=> {
   return response.rows[0];
 };
 
+const createOrder = async({ id, user_id })=> {
+  const SQL = `
+    INSERT INTO carts(id, name) VALUES($1, $2) RETURNING *
+  `;
+  const response = await client.query(SQL, [uuid.v4(), user_id]);
+  return response.rows[0];
+};
+
+const createCartProduct = async({ id, product_id, user_id, qty, })=> {
+  const SQL = `
+    INSERT INTO carts(id, name) VALUES($1, $2) RETURNING *
+  `;
+  const response = await client.query(SQL, [uuid.v4(), product_id, user_id, qty]);
+  return response.rows[0];
+};
+
 const createProduct = async({ name, inventory, price, currency, image_url })=> {
   const SQL = `
     INSERT INTO products(id, name, inventory, price, currency, image_url) VALUES($1, $2, $3, $4, $5, $6 ) RETURNING *
@@ -63,13 +87,14 @@ const createProduct = async({ name, inventory, price, currency, image_url })=> {
   const response = await client.query(SQL, [uuid.v4(), name, inventory, price, currency, image_url]);
   return response.rows[0];
 };
-const selectOrder = async({  order_id, })=> {
+const selectOrder = async({ username, selectOrder })=> {
   const SQL = `
     INSERT INTO select_orders(id, select_order username,) VALUES($1, $2, $3) RETURNING *
   `;
-  const response = await client.query(SQL, [uuid.v4(), selectOrder]);
+  const response = await client.query(SQL, [uuid.v4(),username, selectOrder]);
   return response.rows[0];
 };
+
 const readUser = async({  user_id, })=> {
   const SQL = `
     INSERT INTO users(user_id, username,) VALUES($1, $2, $3) RETURNING *
@@ -77,15 +102,17 @@ const readUser = async({  user_id, })=> {
   const response = await client.query(SQL, [uuid.v4(), users_id,]);
   return response.rows[0];
 };
+
+//readCartedProduct
 const readProduct = async({  product_id, })=> {
   const SQL = `
     INSERT INTO products(product_id, cart_id,) VALUES($1, $2, $3) RETURNING *
   `;
-  const response = await client.query(SQL, [uuid.v4(), users_id,]);
+  const response = await client.query(SQL, [uuid.v4(), users_id, product_id]);
   return response.rows[0];
 };
-//readCartedProduct
-const selectProduct  = async({ cart_id, product_id, })=> {
+
+const selectProduct = async({ cart_id, product_id, })=> {
   const SQL = `
     INSERT INTO product(carted_id, product_id, ) VALUES($1, $2, $3) RETURNING *
   `;
@@ -108,7 +135,7 @@ const updateUser = async({ user_id, username, })=> {
 };
 const updateProduct = async({ product_id, })=> {
   const SQL = `
-    INSERT INTO product(product_id, ) VALUES($1, $2, $3) RETURNING *
+    INSERT INTO product(product_id, ) VALUES($1 RETURNING *
   `;
   const response = await client.query(SQL, [uuid.v4(), product_id,]);
   return response.rows[0];
@@ -178,6 +205,31 @@ const findUserWithToken = async(token)=> {
   return response.rows[0];
 };
 
+const findCartWithToken = async(token)=> {
+  let id;
+  console.log("insidefindcartwithtoken")
+  console.log("passed token " + token)
+  try{
+    const payload = await jwt.verify(token, JWT);
+    id = payload.id;
+  }catch(ex){
+    const error = Error('not authorized');
+    error.status = 401;
+    throw error;
+
+  }
+  const SQL = `
+    SELECT id, cart FROM cart WHERE id=$1;
+  `;
+  const response = await client.query(SQL, [id]);
+  if(!response.rows.length){
+    const error = Error('not authorized');
+    error.status = 401;
+    throw error;
+  }
+  return response.rows[0];
+};
+
 const fetchUsers = async()=> {
   const SQL = `
     SELECT * FROM users;
@@ -215,11 +267,12 @@ module.exports = {
   createTables,
   createUser,
   createCart,
+  createOrder,
   createProduct,
+  createCartProduct,
   selectOrder,
   readUser,
   readProduct,
-  selectProduct,
   updateUser,
   updateCartedProduct,
   updateProduct,
@@ -231,5 +284,6 @@ module.exports = {
   deleteProduct,
   deleteCartedProduct,
   authenticate,
-  findUserWithToken
+  findUserWithToken,
+  findCartWithToken
 };
