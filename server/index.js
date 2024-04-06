@@ -4,15 +4,16 @@ const {
   createTables,
   createUser,
   createCart,
-  // createOrder,
+  createOrder,
   createProduct,
-  createCartProduct,
+  createCarts,
   selectProduct,
   authenticate,
   findUserWithToken,
   findCartWithToken,
   fetchUsers,
   fetchProducts,
+  fetchOrder,
   deleteProduct,
   deleteUser,
   fetchProductById,
@@ -20,7 +21,6 @@ const {
   readProduct,
   updateUser,
   updateCartedProduct,
-  fetchOrder,
   deleteCartedProduct,
   fetchUserInfo,
   Register,
@@ -31,7 +31,7 @@ const {
   addCart,
   removeCart,
   checkout,
-  createOrder
+  fetchOrderById
 
 } = require('./db');
 const express = require('express');
@@ -119,6 +119,15 @@ app.get('/api/user', async (req, res, next) => {
   }
 });
 
+app.get('/api/user', async (req, res, next) => {
+  try {
+    res.send(await createOrder());
+  }
+  catch (ex) {
+    next(ex);
+  }
+});
+
 app.get('/api/auth/me', isLoggedIn, isAdmin, async (req, res, next) => {
   try {
     res.send(await findCartWithToken(req.headers.authorization));
@@ -139,7 +148,7 @@ app.get('/api/users/:id/cart', isLoggedIn, isAdmin, async (req, res, next) => {
 
 app.get('/api/users/:id/order', isLoggedIn, isAdmin, async (req, res, next) => {
   try {
-    res.send(await createOrder(req.params.id));
+    res.send(await fetchProductById(req.params.id));
   }
   catch (ex) {
     next(ex);
@@ -148,7 +157,16 @@ app.get('/api/users/:id/order', isLoggedIn, isAdmin, async (req, res, next) => {
 
 app.post('/api/users/:id/cart', isLoggedIn, isAdmin, async (req, res, next) => {
   try {
-    res.status(201).send(await createCart({ user_id: req.params.id, product_id: req.body.product_id }));
+    res.status(201).send(await createCarts({ user_id: req.params.id, product_id: req.body.product_id }));
+  }
+  catch (ex) {
+    next(ex);
+  }
+});
+
+app.post("/user/:userId/createOrder/:id",isLoggedIn,isAdmin, async (req, res, next) => {
+  try {
+    res.status(201).send(await createOrders({ user_id: req.params.userId, order_id: req.body.order_id, qty: req.body.qty }));
   }
   catch (ex) {
     next(ex);
@@ -215,7 +233,6 @@ app.get('/api/products/:id', async (req, res, next) => {
 
 });
 
-
 app.put('/api/products', async (req, res, next) => {
   try {
     res.send(await Products());
@@ -225,6 +242,14 @@ app.put('/api/products', async (req, res, next) => {
   }
 });
 
+app.put('/api/orders',  isLoggedIn,isAdmin, async (req, res, next) => {
+  try {
+  res.send(await orders());
+  }
+  catch (ex) {
+    next(ex);
+  }
+});
 app.put('/api/CreateCartProducts', async (req, res, next) => {
   try {
     res.send(await createCartProduct());
@@ -247,6 +272,7 @@ const init = async () => {
 
   await createTables();
   console.log('tables created');
+
 
 
   const user = await Promise.all([
@@ -279,13 +305,26 @@ const init = async () => {
     }),
   ]);
 
-
   console.log(user);
-  console.log(products);
+  console.log(products[0].name);
 
-  // console.log(await fetchFavorites(moe.id));
-  // const favorite = await createFavorite({ user_id: moe.id, product_id: });
-  app.listen(port, () => console.log(`listening on port ${port}`));
-};
 
-init();
+  const carts = await Promise.all([
+    createCart({  product_id: products[0].id, user_id: user[0].id, qty: '1',
+    }),
+  ]);
+
+    
+    console.log(carts);
+const orders = await Promise.all([
+  createOrder({
+    user_id: user[0].id,  product_id: products[0].id, qty: '1',
+  }),
+]);
+console.log(orders[0].user_id);
+    // console.log(await fetchFavorites(moe.id));
+    // const favorite = await createFavorite({ user_id: moe.id, product_id: });
+    app.listen(port, () => console.log(`listening on port ${port}`));
+  };
+  
+  init();
