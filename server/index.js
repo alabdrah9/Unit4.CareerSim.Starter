@@ -45,12 +45,12 @@ app.use('/assets', express.static(path.join(__dirname, '../client/dist/assets'))
 
 const cors = require('cors');
 const { register } = require('module');
- app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
-    withCredentials: true,
-}))
+//  app.use(cors({
+//     origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//     credentials: true,
+//     withCredentials: true,
+// }))
 const isAdmin = async (req, res, next) => {
   try {
     if (req.user.isAdmin) {
