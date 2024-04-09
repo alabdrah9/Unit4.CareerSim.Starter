@@ -1,35 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+
+// import bookLogo from "./assets/books.png";
+import { useState } from "react";
+import Login from "./components/Login.jsx";
+import { Navigation } from "./components/Navigation.jsx";
+import { TokenContext } from "./TokenContext.jsx";
+import UseToken from "./UseToken.js"
+import SingleProduct from "./components/SingleProduct.jsx";
+import Product from "./components/Parouduct.jsx"
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [token, setToken] = useState(null);
 
   return (
+
     <>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <h1>
+          {/* <img id="logo-image" src={bookLogo} alt="Book Logo" /> */}
+          Library App
+        </h1>
+
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <TokenContext.Provider value={[token, setToken]}>
+
+        <Navigation />
+
+        <div id="main-section">
+          <Routes>
+            {/* <Route path="/" element={<Books />} />
+            <Route path="/books/:bookId" element={<SingleBook />} />
+            <Route path="/account" element={<Account />} /> */}
+            <Route path="/login" element={<Login />} />
+            {/* <Route path="/register" element={<Register />} /> */}
+          </Routes>
+        </div>
+      </TokenContext.Provider>
     </>
-  )
+  );
 }
 
 export default App
