@@ -1,12 +1,10 @@
 
 // import bookLogo from "./assets/books.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Login from "./components/Login.jsx";
 import { Navigation } from "./components/Navigation.jsx";
 import { TokenContext } from "./TokenContext.jsx";
 import UseToken from "./UseToken.js"
-import SingleProduct from "./components/SingleProduct.jsx";
-import Product from "./components/Parouduct.jsx"
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 
 function App() {
