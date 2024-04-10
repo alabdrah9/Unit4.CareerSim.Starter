@@ -272,6 +272,7 @@ const init = async () => {
 
   await createTables();
   console.log('tables created');
+  
 
 
 

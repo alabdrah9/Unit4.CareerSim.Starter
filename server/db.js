@@ -1,8 +1,8 @@
 const pg = require('pg');
-const client = new pg.Client(process.env.DATABASE_URL || 'postgres://localhost/acme_auth_store_db');
+const client = new pg.Client(process.env.DATABASE_URL || 'postgres://employees_db_swda_user:CTt0i5M2hz3fUujAO37C5Gp0AoU5uJTk@dpg-cndv8aeg1b2c739ocap0-a.ohio-postgres.render.com/employees_db_swda?ssl=true');
 const uuid = require('uuid');
 const bcrypt = require('bcrypt');
-// const cors = require('cors');
+const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const JWT = process.env.JWT || 'shhh';
 
@@ -43,8 +43,7 @@ const createTables = async () => {
       product_id UUID REFERENCES products(id) NOT NULL,
       user_id UUID REFERENCES users(id) NOT NULL,
       amount NUMERIC DEFAULT 0,
-      qty INTEGER DEFAULT 1,
-      CONSTRAINT unique_user_id_product_id UNIQUE (product_id,user_id)
+      qty INTEGER DEFAULT 1
     );
   `;
   await client.query(SQL);
