@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
 import useToken from "../UseToken";
-import Product from "./Parouduct.jsx";
+import Product from "./Product.jsx";
 
 export default function SingleProduct() {
-  const [produc, setProduct] = useState("");
+  const [product, setProduct] = useState("");
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState();
   const [token] = useToken();

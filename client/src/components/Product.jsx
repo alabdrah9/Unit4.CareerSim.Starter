@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import App from "../App.jsx";
 import { Link, useNavigate } from "react-router-dom";
 
 
 /* TODO - add your code to create a functional React component that displays all of the available books in the library's catalog. Fetch the book data from the provided API. Users should be able to click on an individual book to navigate to the SingleBook component and view its details. */
 export default function Product() {
-//   const dummydata = [{ id: 0, title: "dummy" }];
-  const [Products, setProducts] = useState();
-  const [filter, setFilter] = useState("")
+  //   const dummydata = [{ id: 0, title: "dummy" }];
+  const [products, setProducts] = useState([]);
+  const [filter, setFilter] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,7 +15,7 @@ export default function Product() {
         await fetch(
           "https://unit4-careersim-starter.onrender.com/api/products",
           {
-            method:"GET",
+            method: "GET",
             headers: {
               "Content-Type": "application/json",
             },
@@ -35,7 +34,7 @@ export default function Product() {
     getProduct();
   }, []);
   function handleFilter(evt) {
-    setFilter(evt.target.value)
+    setFilter(evt.target.value);
   }
   // function handleClick(){}
 
@@ -54,14 +53,17 @@ export default function Product() {
           </tr>
         </thead>
         <tbody>
-        {/* <link to="./SingleProduct.jsx">{Product.name}</link> */}
           
-        {/* {Products.filter(product => product.name.match(filter)).map((product) => (
-              <tr onClick={() => navigate("/product/" + product.id)} key={product.id}>
-                <td>{product.name}</td>
-                
+          {products
+            .filter((product) => product.name.match(filter))
+            .map((product) => (
+              <tr
+                onClick={() => navigate("/product/" + product.id)}
+                key={product.id}
+              >
+                <td><Link to={`/product/${product.id}`}>{product.name}</Link></td>
               </tr>
-            ))} */}
+            ))}
         </tbody>
       </table>
       <div />
