@@ -25,7 +25,7 @@ export default function SignUp() {
     try {
       console.log(formData);
       const registerResponse = await fetch(
-        "postgres://employees_db_swda_user:CTt0i5M2hz3fUujAO37C5Gp0AoU5uJTk@dpg-cndv8aeg1b2c739ocap0-a.ohio-postgres.render.com/employees_db_swda?ssl=true/api/auth/register",
+        "https://unit4-careersim-starter.onrender.com/api/auth/register",
         {
           method: "POST",
           headers: {

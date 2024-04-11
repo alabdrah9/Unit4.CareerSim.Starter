@@ -12,7 +12,7 @@ export function Account() {
     async function fetchUserData() {
       try {
         const response = await fetch(
-          "https://fsa-book-buddy-b6e748d1380d.herokuapp.com/api/users/me",
+          "https://unit4-careersim-starter.onrender.com/api/user",
           {
             method: "GET",
             headers: {
@@ -22,7 +22,7 @@ export function Account() {
           }
         );
         const result = await response.json();
-        setBooks(result.books);
+        setProducts(result.products);
         setAccount(result.email);
       } catch (error) {
         console.error(error.message);
@@ -32,18 +32,18 @@ export function Account() {
   }, []);
   return (
     <>
-      <h1>Books in My Box</h1>
+      <h1>Product in my cart</h1>
       <thead>
         <tr>
           <th>name</th>
           <th>Account</th>
         </tr>
       </thead>
-      {books.map((book) => {
+      {products.map((product) => {
         return (
-          <tr key={book.id}>
-            <td>{book.title}</td>
-            {/* <button onClick={async() => await deleteCheckOuts(book.id)}>
+          <tr key={product.id}>
+            <td>{product.name}</td>
+            {/* <button onClick={async() => await deleteCheckOuts(product.id)}>
                     Return
                 </button> */}
           </tr>

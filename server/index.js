@@ -101,7 +101,7 @@ app.post('/api/auth/register', async (req, res, next) => {
   }
 });
 
-app.get('/api/auth/me', isLoggedIn, isAdmin, async (req, res, next) => {
+app.get('/api/auth/me', isLoggedIn,  async (req, res, next) => {
   try {
     res.send(await findUserWithToken(req.headers.authorization));
   }
@@ -166,7 +166,7 @@ app.post('/api/users/:id/cart', isLoggedIn, isAdmin, async (req, res, next) => {
 
 app.post("/user/:userId/createOrder/:id",isLoggedIn,isAdmin, async (req, res, next) => {
   try {
-    res.status(201).send(await createOrders({ user_id: req.params.userId, order_id: req.body.order_id, qty: req.body.qty }));
+    res.status(201).send(await createOrder({ user_id: req.params.userId, order_id: req.body.order_id, qty: req.body.qty }));
   }
   catch (ex) {
     next(ex);
@@ -252,7 +252,7 @@ app.put('/api/orders',  isLoggedIn,isAdmin, async (req, res, next) => {
 });
 app.put('/api/CreateCartProducts', async (req, res, next) => {
   try {
-    res.send(await createCartProduct());
+    res.send(await createProduct());
   }
   catch (ex) {
     next(ex);

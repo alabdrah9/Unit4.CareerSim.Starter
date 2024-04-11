@@ -12,7 +12,7 @@ export default function Login() {
    e.preventDefault()
     try {
       const response = await fetch(
-        "postgres://employees_db_swda_user:CTt0i5M2hz3fUujAO37C5Gp0AoU5uJTk@dpg-cndv8aeg1b2c739ocap0-a.ohio-postgres.render.com/employees_db_swda?ssl=trueapi/users/login",
+        "https://unit4-careersim-starter.onrender.com/users/login",
         {
           method: "POST",
           headers: {

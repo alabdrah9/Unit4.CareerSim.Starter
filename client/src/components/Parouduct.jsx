@@ -14,7 +14,7 @@ export default function Product() {
     async function getProduct() {
       try {
         await fetch(
-          "postgres://employees_db_swda_user:CTt0i5M2hz3fUujAO37C5Gp0AoU5uJTk@dpg-cndv8aeg1b2c739ocap0-a.ohio-postgres.render.com/employees_db_swda?ssl=true/api/products",
+          "https://unit4-careersim-starter.onrender.com/api/products",
           {
             method:"GET",
             headers: {
@@ -54,14 +54,14 @@ export default function Product() {
           </tr>
         </thead>
         <tbody>
-        <link to="./Product.jsx">{Product.name}</link>
+        {/* <link to="./SingleProduct.jsx">{Product.name}</link> */}
           
-        {Products.filter(product => product.name.match(filter)).map((product) => (
+        {/* {Products.filter(product => product.name.match(filter)).map((product) => (
               <tr onClick={() => navigate("/product/" + product.id)} key={product.id}>
                 <td>{product.name}</td>
                 
               </tr>
-            ))}
+            ))} */}
         </tbody>
       </table>
       <div />

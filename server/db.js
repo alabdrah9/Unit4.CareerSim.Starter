@@ -26,7 +26,7 @@ const createTables = async () => {
       id UUID PRIMARY KEY,
       name VARCHAR(20) UNIQUE NOT NULL,
       inventory NUMERIC,
-      image_url VARCHAR(255),
+      image_url TEXT,
       price NUMERIC(9,2),
       currency TEXT
     );
@@ -181,7 +181,7 @@ const findUserWithToken = async (token) => {
   console.log("insidefinduserwithtoken")
   console.log("passed token " + token)
   try {
-    const payload = await jwt.verify(token, JWT);
+    const payload =  jwt.verify(token, JWT);
     id = payload.id;
   } catch (ex) {
     const error = Error('not authorized');
@@ -206,7 +206,7 @@ const findCartWithToken = async (token) => {
   console.log("insidefindcartwithtoken")
   console.log("passed token " + token)
   try {
-    const payload = await jwt.verify(token, JWT);
+    const payload =  jwt.verify(token, JWT);
     id = payload.id;
   } catch (ex) {
     const error = Error('not authorized');
