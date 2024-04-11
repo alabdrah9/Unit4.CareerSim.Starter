@@ -11,12 +11,14 @@ const {
   authenticate,
   findUserWithToken,
   findCartWithToken,
+  fetchProductById,
+  fetchOrderById,
+  fetchCartById,
   fetchUsers,
   fetchProducts,
   fetchOrder,
   deleteProduct,
   deleteUser,
-  fetchProductById,
   readUser,
   readProduct,
   updateUser,
@@ -30,12 +32,14 @@ const {
   updateProduct,
   addCart,
   removeCart,
-  checkout,
-  fetchOrderById
+  checkout
 
 } = require('./db');
 const express = require('express');
 const app = express();
+const cors = require('cors');
+const { register } = require('module');
+app.use (cors());
 app.use(express.json());
 
 //for deployment only
@@ -43,8 +47,6 @@ const path = require('path');
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '../client/dist/index.html')));
 app.use('/assets', express.static(path.join(__dirname, '../client/dist/assets')));
 
-const cors = require('cors');
-const { register } = require('module');
 //  app.use(cors({
 //     origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
 //     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -139,7 +141,7 @@ app.get('/api/auth/me', isLoggedIn, isAdmin, async (req, res, next) => {
 
 app.get('/api/users/:id/cart', isLoggedIn, isAdmin, async (req, res, next) => {
   try {
-    res.send(await fetchCart(req.params.id));
+    res.send(await fetchCartById(req.params.id));
   }
   catch (ex) {
     next(ex);
